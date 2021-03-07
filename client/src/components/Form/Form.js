@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Typography, Paper, withStyles } from '@material-ui/core';
+import { TextField, Button, Typography, Paper, withStyles, Grid, Container } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import FileBase from 'react-file-base64';
-
 import useStyles from './styles';
 import { createPost, updatePost } from '../../actions/posts';
 import { red } from '@material-ui/core/colors';
+import  ColorPickerComponent  from '../CustomColorPicker';
+
 
 const Form = ({ currentId, setCurrentId }) => {
-  const [postData, setPostData] = useState({ creator: '', title: '', message: '', tags: '', selectedFile: '' });
-  const post = useSelector((state) => (currentId ? state.posts.find((message) => message._id === currentId) : null));
+  const [postData, setPostData] = useState({ name: '', cost: '', volume: '', delivery_date: '', color: '', total: '' });
+  const materials = useSelector((state) => (currentId ? state.materials.find((message) => message._id === currentId) : null));
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -24,12 +24,12 @@ const Form = ({ currentId, setCurrentId }) => {
   }))(Button);
 
   useEffect(() => {
-    if (post) setPostData(post);
-  }, [post]);
+    if (materials) setPostData(materials);
+  }, [materials]);
 
   const clear = () => {
     setCurrentId(0);
-    setPostData({ creator: '', title: '', message: '', tags: '', selectedFile: '' });
+    setPostData({ name: '', volume: '' , cost: '', delivery_date: '', color: '', total: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -47,14 +47,49 @@ const Form = ({ currentId, setCurrentId }) => {
   return (
     <Paper className={classes.paper}>
       <form autoComplete="off" noValidate className={`${classes.root} ${classes.form}`} onSubmit={handleSubmit}>
-        <Typography variant="h6">{currentId ? `Editing "${post.title}"` : 'Creating a Memory'}</Typography>
-        <TextField name="creator" variant="outlined" label="Creator" fullWidth value={postData.creator} onChange={(e) => setPostData({ ...postData, creator: e.target.value })} />
-        <TextField name="title" variant="outlined" label="Title" fullWidth value={postData.title} onChange={(e) => setPostData({ ...postData, title: e.target.value })} />
-        <TextField name="message" variant="outlined" label="Message" fullWidth multiline rows={4} value={postData.message} onChange={(e) => setPostData({ ...postData, message: e.target.value })} />
-        <TextField name="tags" variant="outlined" label="Tags (coma separated)" fullWidth value={postData.tags} onChange={(e) => setPostData({ ...postData, tags: e.target.value.split(',') })} />
-        <div className={classes.fileInput}><FileBase type="file" multiple={false} onDone={({ base64 }) => setPostData({ ...postData, selectedFile: base64 })} /></div>
-        <ColorButton className={classes.buttonSubmit} variant="contained" color="primary" size="large" type="submit" fullWidth>Submit</ColorButton>
-        <Button variant="contained" size="small" onClick={clear} fullWidth>Clear</Button>
+        <Typography variant="h6">{currentId ? `Editing "${materials.title}"` : 'Add a Material'}</Typography>
+        <Grid container spacing = {3}>
+        <Grid item xs={6}>
+          <TextField name="Material Name" variant="outlined" label="Material Name" fullWidth value={postData.name} onChange={(e) => setPostData({ ...postData, name: e.target.value })} />
+          </Grid>
+          <Grid  item xs={6}>
+          <ColorPickerComponent color = {postData.color}/>
+        </Grid>
+        <Grid item xs={6}>
+        <TextField  type='number' name="Volume" variant="outlined" label="Volume" fullWidth value={postData.volume} onChange={(e) => setPostData({ ...postData, volume: e.target.value })} />
+          </Grid>
+          <Grid item xs={6}>
+          <TextField   type='number' name="Cost (USD per m3)" variant="outlined" fullWidth label="Cost (USD per m3)" value={postData.cost} onChange={(e) => setPostData({ ...postData, cost: e.target.value })} />
+          </Grid>
+          <Grid  item xs={6}>
+          <TextField
+            id="date"
+            label="Delivery Date"
+            type="date"
+            fullwidth
+            defaultValue="2021-01-01"
+            // className={classes.textField}
+            value={postData.delivery_date}
+            InputLabelProps={{
+            shrink: true,
+            }}
+            onChange={(e) => setPostData({ ...postData, delivery_date: e.target.value })}
+      />
+          </Grid>
+          <Grid item xs={6}>
+          <TextField   type='number' name="Total Cost (USD per m3)" variant="outlined" fullWidth label="Total Cost" value={postData.cost * postData.volume}  />
+          </Grid>
+        </Grid>
+       <Grid>
+       <Grid item xs={6}>
+        <ColorButton className={classes.buttonSubmit} variant="contained" color="primary" size="small" type="submit" fullWidth>Submit</ColorButton>
+        </Grid>
+       <Grid  item xs={6}>
+       <Button variant="contained" size="small" onClick={clear} fullWidth>Clear</Button>
+       </Grid>
+       </Grid>
+     
+  
       </form>
     </Paper>
   );
